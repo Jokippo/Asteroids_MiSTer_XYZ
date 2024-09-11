@@ -73,6 +73,10 @@ entity ASTEROIDS_TOP is
     VIDEO_R_OUT       : out   std_logic_vector(3 downto 0);
     VIDEO_G_OUT       : out   std_logic_vector(3 downto 0);
     VIDEO_B_OUT       : out   std_logic_vector(3 downto 0);
+	 
+	 VIDEO_X_OUT       : out   std_logic_vector(9 downto 0);
+    VIDEO_Y_OUT       : out   std_logic_vector(9 downto 0);
+    VIDEO_Z_OUT       : out   std_logic_vector(3 downto 0);
 
     HSYNC_OUT         : out   std_logic;
     VSYNC_OUT         : out   std_logic;
@@ -149,6 +153,21 @@ begin
       end if;
     end if;
   end process;
+  
+	process(clk_6)
+	begin
+		if rising_edge(clk_6) then
+			 VIDEO_X_OUT <= x_vector;
+			 VIDEO_Y_OUT <= y_vector;
+			 VIDEO_Z_OUT <= x"0";
+			 if (x_vector < 999 and x_vector > 1) then
+				if (y_vector < 999 and y_vector > 1) then
+					VIDEO_Z_OUT <= z_vector;
+				end if;
+			 end if;
+		end if;
+	end process;
+  
 
   u_asteroids : entity work.ASTEROIDS
     port map (
@@ -188,6 +207,7 @@ begin
       VIDEO_R_OUT      => VIDEO_R_OUT,
       VIDEO_G_OUT      => VIDEO_G_OUT,
       VIDEO_B_OUT      => VIDEO_B_OUT,
+		
       HSYNC_OUT        => HSYNC_OUT,
       VSYNC_OUT        => VSYNC_OUT,
 		VID_DE				=> VGA_DE,

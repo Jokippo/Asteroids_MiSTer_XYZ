@@ -46,6 +46,9 @@ module emu
 	output  [7:0] VGA_R,
 	output  [7:0] VGA_G,
 	output  [7:0] VGA_B,
+	output  [9:0] VGA_X,
+	output  [9:0] VGA_Y,
+	output  [3:0] VGA_Z,
 	output        VGA_HS,
 	output        VGA_VS,
 	output        VGA_DE,    // = ~(VBlank | HBlank)
@@ -57,6 +60,9 @@ module emu
 	input  [11:0] HDMI_WIDTH,
 	input  [11:0] HDMI_HEIGHT,
 	output        HDMI_FREEZE,
+	
+	output		  ROTATE,
+	output		  XYZ_EN,
 
 `ifdef MISTER_FB
 	// Use framebuffer in DDRAM
@@ -187,6 +193,9 @@ wire [1:0] ar = status[15:14];
 assign VIDEO_ARX =  (!ar) ? ( 8'd4) : (ar - 1'd1);
 assign VIDEO_ARY =  (!ar) ? ( 8'd3) : 12'd0;
 
+assign  ROTATE = status[8];
+assign  XYZ_EN = ~status[9];
+
 
 `include "build_id.v" 
 localparam CONF_STR = {
@@ -195,6 +204,8 @@ localparam CONF_STR = {
 	"O34,Language,English,German,French,Spanish;",
 	"O6,Ships,3,4;", // system locks up when activating above 3-5
 	"O7,Test,Off,On;", 
+	"O8,Rotate,Off,On;", 
+	"O9,XYZ over RGB,on,Off;", 
 	"-;",
 	"R0,Reset;",
 	"J1,Fire,Thrust,Hyperspace,Start 1P, Start 2P,Coin;",	
@@ -262,6 +273,7 @@ wire hs, vs;
 wire [3:0] r,g,b;
 
 
+
 reg ce_pix;
 always @(posedge clk_50) begin
        ce_pix <= !ce_pix;
@@ -304,6 +316,7 @@ assign AUDIO_S = 0;
 wire [1:0] lang = status[4:3];
 wire  ships = ~status[6];
 
+
 wire vgade;
 
 ASTEROIDS_TOP ASTEROIDS_TOP
@@ -320,6 +333,9 @@ ASTEROIDS_TOP ASTEROIDS_TOP
 	.VIDEO_R_OUT(r),
 	.VIDEO_G_OUT(g),
 	.VIDEO_B_OUT(b),
+	.VIDEO_X_OUT(VGA_X),
+	.VIDEO_Y_OUT(VGA_Y),
+	.VIDEO_Z_OUT(VGA_Z),
 	.HSYNC_OUT(hs),
 	.VSYNC_OUT(vs),
 	.VGA_DE(vgade),
